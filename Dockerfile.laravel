@@ -1,0 +1,57 @@
+# Stage 1: PHP Environment
+FROM php:latest AS php-builder
+
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libxml2-dev \
+    libonig-dev \
+    libicu-dev \
+    libxslt-dev \
+    zlib1g-dev \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql sockets gd calendar intl exif zip
+
+RUN curl -sS https://getcomposer.org/installer | php -- \
+     --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /app
+COPY . .
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+
+# Stage 2: Node.js Environment
+FROM node:lts-alpine AS node-builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 3: Final Production Image
+FROM php:latest
+
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libxml2-dev \
+    libonig-dev \
+    libicu-dev \
+    libxslt-dev \
+    zlib1g-dev \
+    libzip-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql sockets gd calendar intl exif zip
+
+WORKDIR /app
+
+# Copy results from previous stages
+COPY --from=php-builder /app /app
+COPY --from=node-builder /app /app
+
+EXPOSE 80
+CMD ["php", "-S", "0.0.0.0:80", "-t", "/app/public"]
