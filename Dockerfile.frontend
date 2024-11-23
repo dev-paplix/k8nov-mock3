@@ -1,0 +1,9 @@
+FROM node:18
+WORKDIR /app
+COPY resources/package.json ./
+COPY resources/package-lock.json ./
+RUN npm install
+COPY resources/ ./
+RUN npm run build
+EXPOSE 8080
+CMD ["npm", "run", "serve"]
