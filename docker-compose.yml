@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile.laravel
+    container_name: laravel-vuejs
+    command: >
+      sh -c "php artisan key:generate && php artisan migrate --seed && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/var/www
+      - ./storage:/var/www/storage
+    networks:
+      - laravel-network
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8
+    container_name: mysql-database
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - laravel-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: ${DB_HOST}
+      PMA_PORT: ${DB_PORT}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - laravel-network
+    depends_on:
+      - database
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-server
+    ports:
+      - "80:80"
+    networks:
+      - laravel-network
+
+volumes:
+  db_data:
+
+networks:
+  laravel-network:
+    driver: bridge
+
