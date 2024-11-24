@@ -8,6 +8,7 @@ import 'flowbite';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import vSelect from "vue-select";
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
@@ -40,6 +41,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(ZiggyVue)
             .use(PrimeVue, {
                 theme: {
                     preset: MyPreset,
