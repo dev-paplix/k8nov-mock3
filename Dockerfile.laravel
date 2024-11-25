@@ -19,8 +19,18 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
      --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /app
+
+# Copy the entire project first
 COPY . .
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+
+# Set proper permissions
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app \
+    && chmod -R 777 /app/storage
+
+# Install dependencies as www-data user
+USER www-data
+RUN composer install --no-dev --optimize-autoloader
 
 # Stage 2: Node.js Environment
 FROM node:lts-alpine AS node-builder
@@ -28,6 +38,7 @@ FROM node:lts-alpine AS node-builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+COPY --from=php-builder /app/vendor ./vendor
 COPY . .
 RUN npm run build
 
@@ -51,7 +62,14 @@ WORKDIR /app
 
 # Copy results from previous stages
 COPY --from=php-builder /app /app
-COPY --from=node-builder /app /app
+COPY --from=node-builder /app/public ./public
+
+# Set proper permissions
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app \
+    && chmod -R 777 /app/storage
+
+USER www-data
 
 EXPOSE 80
 CMD ["php", "-S", "0.0.0.0:80", "-t", "/app/public"]
