@@ -57,9 +57,9 @@ Requests CPU: 0.5Memory: 500Mi Limits CPU: 1 Memory: 1Gi
 
 
 Q6:
-Create a Deployment named web in the ca1 namespace with an image of nginx:latest. Create a new Service named web-svc that sits in front of this deployment. Expose the new service publicly by creating an Ingress resource named web-app. The Ingress's host field must be set to the host key value stored in an existing ConfigMap named webapp-host-fqdn, also located in the ca1 namespace. All changes should be performed in the ca1 namespace. The following settings must also be used for the Ingress resource:
+Create a Deployment named web in the ca1 namespace with an image of nginx:latest. Create a new Service named web-svc that sits in front of this deployment. Expose the new service publicly by in port 8080. 
 
-Name: webAnnotations: nginx.ingress.kubernetes.io/rewrite-target: /path: /pathType: Prefix
+
 
 
 Q7:
