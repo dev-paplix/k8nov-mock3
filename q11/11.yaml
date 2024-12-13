@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: podpvc
+  namespace: qq2
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---      
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod
+  namespace: qq2
+spec:
+  volumes:
+    - name: podpvc
+      persistentVolumeClaim:
+        claimName: podpvc
+  containers:
+    - name: pod
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: podpvc
+          readOnly: true
