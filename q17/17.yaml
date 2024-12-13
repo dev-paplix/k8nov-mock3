@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nodeport-app
+  name: nodeport-app
+  namespace: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nodeport-demo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nodeport-demo
+    spec:
+      containers:
+        - image: httpd:latest
+          name: httpd
+          resources: {}
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nodeport-demo
+  name: nodeport-service
+  namespace: staging
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+      nodePort: 30000
+  selector:
+    app: nodeport-demo
+  type: NodePort
+status:
+  loadBalancer: {}
