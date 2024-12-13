@@ -1,0 +1,48 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: development
+  name: pod-reader
+rules:
+- apiGroups: ["*"]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dev-user
+  namespace: development
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: development
+subjects:
+- kind: ServiceAccount
+  name: dev-user
+  namespace: development
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: development
+spec:
+  serviceAccountName: dev-user
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
