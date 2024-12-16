@@ -1,0 +1,2 @@
+kubectl create deployment app01 -n prod --image=nginx:latest --port=80 --replicas=2
+kubectl expose deployment app01 --name=app01-svc --type=NodePort --port=80 --target-port=80 -n prod

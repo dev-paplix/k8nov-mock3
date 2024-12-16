@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: resource-demo
+  name: resource-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: resource-demo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: resource-demo
+    spec:
+      containers:
+        - image: busybox
+          name: busybox
+          command: ["/bin/sh", "-c", "sleep 3600"]
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+status: {}
