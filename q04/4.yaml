@@ -1,0 +1,33 @@
+kubectl create cm app-config -n staging --from-literal=APP_ENV=staging --from-literal=LOG_LEVEL=info
+kubectl create secret generic db-credentials -n staging --from-literal=DB_USER=admin --from-literal=DB_PASSWORD=password123
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: web-app
+  name: web-app
+  namespace: staging
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: web-app
+    spec:
+      containers:
+        - image: nginx:latest
+          name: nginx
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: db-credentials
+          resources: {}
+status: {}
