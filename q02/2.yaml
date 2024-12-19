@@ -1,0 +1,3 @@
+kubectl create ns qq2
+kubectl create deployment lab-deployment --image=nginx -n qq2
+kubectl scale deployment.apps/lab-deployment --replicas=4 -n qq2
